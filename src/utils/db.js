@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-vars */
-//  I NEED A METHOD FROM HERE TO retrive AND save data
-
-const DB_NAME = 'INPUT_STORE'
+/**
+ * Retrive and save data to indexDB
+ * 
+ */
+const DB_NAME = 'INPUT_FIELD'
 const DB_VERSION = 3
 const STORE_NAME = 'INPUT_STORE'
 
@@ -49,7 +51,7 @@ export const addTodDB = ( userInput ) => {
 
   const value = { id: 'result', 'value': userInput }
 
-  const field_transaction = dataBase.transaction( DB_NAME, "readwrite" )
+  const field_transaction = dataBase.transaction( STORE_NAME, "readwrite" )
   const store = field_transaction.objectStore( STORE_NAME )
 
   let result = null
@@ -82,7 +84,7 @@ export const addTodDB = ( userInput ) => {
 export const getData = async () => {
   if ( !dataBase ) return null
 
-  const field_transaction = dataBase.transaction( DB_NAME, "readonly" )
+  const field_transaction = dataBase.transaction( STORE_NAME, "readonly" )
   const store = await field_transaction.objectStore( STORE_NAME )
 
   const result = store.get( "result" )

@@ -31,11 +31,9 @@ export default {
 	},
 	methods: {
 		saveToIndexDB() {
-			console.log(this.inputValue)
 			addTodDB(this.inputValue)
 		},
 		refresh() {
-			console.log('refresh')
 			location.reload()
 		}
 	}
