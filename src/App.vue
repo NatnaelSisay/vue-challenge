@@ -22,15 +22,12 @@ export default {
 			inputValue: ''
 		}
 	},
-	mounted() {
-		create_db()
-		setTimeout(() => {
-			if (getData()) {
-				getData().then((result) => {
-					this.inputValue = result
-				})
-			}
-		}, 1000)
+	created() {
+		create_db().then(() => {
+			getData().then((result) => {
+				this.inputValue = result
+			})
+		})
 	},
 	methods: {
 		saveToIndexDB() {

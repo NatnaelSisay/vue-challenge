@@ -11,23 +11,29 @@ export const create_db = () => {
   const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
   const request = indexedDB.open( DB_NAME, DB_VERSION )
 
-  request.onerror = ( event ) => {
-    console.log( "Error creating DB.", event )
-  }
-
-  request.onupgradeneeded = ( event ) => {
-    dataBase = event.target.result
-
-    const store = dataBase.createObjectStore( STORE_NAME, { keyPath: "id" } )
-
-    store.transaction.oncomplete = ( event ) => {
-      console.log( "store successfully completed" )
+  return new Promise( ( resolve, reject ) => {
+    request.onerror = ( event ) => {
+      console.log( "Error creating DB.", event )
+      reject( event )
     }
-  }
 
-  request.onsuccess = ( event ) => {
-    dataBase = event.target.result
-  }
+    request.onupgradeneeded = ( event ) => {
+      dataBase = event.target.result
+
+      const store = dataBase.createObjectStore( STORE_NAME, { keyPath: "id" } )
+
+      store.transaction.oncomplete = ( event ) => {
+        console.log( "store successfully completed" )
+      }
+      resolve( dataBase )
+    }
+
+    request.onsuccess = ( event ) => {
+      dataBase = event.target.result
+      resolve( dataBase )
+    }
+  } )
+
 }
 
 export const delete_db = () => {
