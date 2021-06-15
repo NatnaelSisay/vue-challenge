@@ -1,0 +1,97 @@
+/* eslint-disable no-unused-vars */
+//  I NEED A METHOD FROM HERE TO retrive AND save data
+
+const DB_NAME = 'INPUT_STORE'
+const DB_VERSION = 3
+const STORE_NAME = 'INPUT_STORE'
+
+let dataBase = null
+
+export const create_db = () => {
+  const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
+  const request = indexedDB.open( DB_NAME, DB_VERSION )
+
+  request.onerror = ( event ) => {
+    console.log( "Error creating DB.", event )
+  }
+
+  request.onupgradeneeded = ( event ) => {
+    dataBase = event.target.result
+
+    const store = dataBase.createObjectStore( STORE_NAME, { keyPath: "id" } )
+
+    store.transaction.oncomplete = ( event ) => {
+      console.log( "store successfully completed" )
+    }
+  }
+
+  request.onsuccess = ( event ) => {
+    dataBase = event.target.result
+  }
+}
+
+export const delete_db = () => {
+  const result = window.indexedDB.deleteDatabase( DB_NAME )
+
+  result.onsuccess = ( event ) => {
+    console.log( "DB successfully deleted", event )
+  }
+}
+
+export const addTodDB = ( userInput ) => {
+  if ( !dataBase ) return null
+
+  const value = { id: 'result', 'value': userInput }
+
+  const field_transaction = dataBase.transaction( DB_NAME, "readwrite" )
+  const store = field_transaction.objectStore( STORE_NAME )
+
+  let result = null
+
+  store.get( 'result' ).onsuccess = ( event ) => {
+    /**
+     * If we already have data, update
+     * else create new data
+     */
+    if ( event.target.result ) {
+      const newvalue = event.target.result
+      newvalue.value = userInput
+
+      result = store.put( newvalue )
+
+    } else {
+      result = store.add( value )
+    }
+
+    result.onerror = ( event ) => {
+      console.log( 'Error while adding input field ', event )
+    }
+
+    result.onsuccess = ( event ) => {
+      console.log( "Adding was successfull", event )
+    }
+  }
+}
+
+export const getData = async () => {
+  if ( !dataBase ) return null
+
+  const field_transaction = dataBase.transaction( DB_NAME, "readonly" )
+  const store = await field_transaction.objectStore( STORE_NAME )
+
+  const result = store.get( "result" )
+
+  return new Promise( ( resolve, reject ) => {
+    result.onsuccess = ( event ) => {
+      if ( event.target.result ) {
+        resolve( event.target.result.value )
+      } else {
+        reject( "No data" )
+      }
+    }
+    result.onerror = ( event ) => {
+      reject( "No data" )
+    }
+  } )
+
+}
